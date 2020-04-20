@@ -4,9 +4,7 @@ alias gco="git checkout"
 alias gpr="git pull-request"
 
 
-if [ -f "$(brew --prefix)/opt/zsh-git-prompt/zshrc.sh" ]; then
-   source "$(brew --prefix)/opt/zsh-git-prompt/zshrc.sh"
-fi
+plugins=(... git-prompt)
 
 function gpo () {
     current_branch=`git rev-parse --abbrev-ref HEAD`
