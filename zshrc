@@ -110,3 +110,5 @@ function gpo () {
 }
 
 ssh-add --apple-use-keychain
+
+alias k=kubectl
