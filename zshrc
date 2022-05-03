@@ -109,4 +109,4 @@ function gpo () {
     git push origin $current_branch $1
 }
 
-ssh-add -K
+ssh-add --apple-use-keychain
