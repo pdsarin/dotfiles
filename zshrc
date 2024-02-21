@@ -112,3 +112,5 @@ function gpo () {
 ssh-add --apple-use-keychain
 
 alias k=kubectl
+
+eval "$(direnv hook zsh)"
