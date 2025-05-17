@@ -262,6 +262,15 @@ else
   echo "Dotfiles source line already exists in .zshrc"
 fi
 
+# Copy silpharin theme to oh-my-zsh themes directory
+if [ -d "$HOME/.oh-my-zsh/themes" ]; then
+  echo "Installing silpharin zsh theme..."
+  cp "$(dirname "$0")/silpharin.zsh-theme" "$HOME/.oh-my-zsh/themes/"
+  echo "silpharin theme installed"
+else
+  echo "Oh-my-zsh themes directory not found. Cannot install silpharin theme."
+fi
+
 # Install Node.js 18+ if needed
 install_nodejs
 
