@@ -37,6 +37,105 @@ install_hub() {
   fi
 }
 
+# Check if Node.js is installed and version is 18+
+check_nodejs() {
+  if command_exists node; then
+    NODE_VERSION=$(node -v | cut -d 'v' -f 2 | cut -d '.' -f 1)
+    if [ "$NODE_VERSION" -ge 18 ]; then
+      echo "Node.js v$(node -v | cut -d 'v' -f 2) is already installed"
+      return 0
+    else
+      echo "Node.js v$(node -v | cut -d 'v' -f 2) is installed but version 18+ is required"
+      return 1
+    fi
+  else
+    echo "Node.js is not installed"
+    return 1
+  fi
+}
+
+# Install Node.js if not already installed or version is less than 18
+install_nodejs() {
+  if ! check_nodejs; then
+    echo "Installing Node.js 18+..."
+    
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      # macOS - use Homebrew if available
+      if command_exists brew; then
+        brew install node@18
+        # Add to PATH if needed
+        if ! command_exists node || [ "$(node -v | cut -d 'v' -f 2 | cut -d '.' -f 1)" -lt 18 ]; then
+          echo 'export PATH="/usr/local/opt/node@18/bin:$PATH"' >> ~/.zshrc
+          export PATH="/usr/local/opt/node@18/bin:$PATH"
+        fi
+      else
+        echo "Homebrew not found. Please install Homebrew first or install Node.js manually."
+      fi
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+      # Linux - use nvm for easier version management
+      if ! command_exists nvm; then
+        echo "Installing nvm..."
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+        
+        # Load nvm
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      fi
+      
+      # Install and use Node.js 18
+      nvm install 18
+      nvm use 18
+    else
+      echo "Unsupported OS. Please install Node.js manually."
+    fi
+  fi
+}
+
+# Install Claude Code CLI
+install_claude_code() {
+  if ! command_exists claude; then
+    echo "Installing Claude Code CLI..."
+    
+    if command_exists npm; then
+      npm install -g @anthropic-ai/claude-code
+      echo "Claude Code installed successfully"
+    else
+      echo "npm not found. Please install Node.js first."
+    fi
+  else
+    echo "Claude Code is already installed"
+  fi
+}
+
+# Install uv and uvx
+install_uv_uvx() {
+  # Install uv if not already installed
+  if ! command_exists uv; then
+    echo "Installing uv..."
+    
+    if [[ "$OSTYPE" == "darwin"* ]] || [[ "$OSTYPE" == "linux-gnu"* ]]; then
+      curl -LsSf https://astral.sh/uv/install.sh | sh
+    else
+      echo "Unsupported OS. Please install uv manually."
+    fi
+  else
+    echo "uv is already installed"
+  fi
+  
+  # Install uvx if not already installed
+  if ! command_exists uvx; then
+    echo "Installing uvx..."
+    
+    if command_exists uv; then
+      uv install uvx
+    else
+      echo "uv not found. Cannot install uvx."
+    fi
+  else
+    echo "uvx is already installed"
+  fi
+}
+
 # Install hub
 install_hub
 
@@ -59,5 +158,14 @@ if ! grep -q "$DOTFILES_SOURCE_LINE" "$HOME/.zshrc"; then
 else
   echo "Dotfiles source line already exists in .zshrc"
 fi
+
+# Install Node.js 18+ if needed
+install_nodejs
+
+# Install Claude Code
+install_claude_code
+
+# Install uv and uvx
+install_uv_uvx
 
 echo "Installation complete!"
