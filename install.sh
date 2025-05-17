@@ -239,6 +239,77 @@ install_cargo() {
   fi
 }
 
+# Install git-machete if not already installed
+install_git_machete() {
+  if ! command_exists git-machete; then
+    echo "Installing git-machete..."
+    
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      # macOS - use Homebrew if available
+      if command_exists brew; then
+        brew install git-machete
+      else
+        echo "Homebrew not found. Falling back to pip installation."
+        install_git_machete_with_pip
+      fi
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+      # Linux - try different methods based on available package managers
+      if command_exists snap; then
+        sudo snap install --classic git-machete
+      elif command_exists brew; then
+        brew install git-machete
+      elif command_exists conda; then
+        conda install -c conda-forge git-machete
+      else
+        # Fallback to pip installation
+        install_git_machete_with_pip
+      fi
+    else
+      # Fallback to pip for other OS
+      install_git_machete_with_pip
+    fi
+  else
+    echo "git-machete is already installed"
+  fi
+}
+
+# Helper function to install git-machete with pip
+install_git_machete_with_pip() {
+  if command_exists pip3; then
+    # Check if we have permission to write to system directories
+    if [ -w "$(pip3 -V | awk '{print $4}' | sed 's/\/lib\/.*$//')" ]; then
+      pip3 install git-machete
+    else
+      # User-level installation if we don't have system-wide permissions
+      pip3 install --user git-machete
+      
+      # Make sure ~/.local/bin is in PATH for user-level pip installations
+      if [[ ! "$PATH" == *"$HOME/.local/bin"* ]]; then
+        echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
+        export PATH="$HOME/.local/bin:$PATH"
+        
+        echo "Added ~/.local/bin to PATH for pip installations"
+      fi
+    fi
+  elif command_exists pip; then
+    # Try with pip if pip3 isn't available
+    if [ -w "$(pip -V | awk '{print $4}' | sed 's/\/lib\/.*$//')" ]; then
+      pip install git-machete
+    else
+      pip install --user git-machete
+      
+      if [[ ! "$PATH" == *"$HOME/.local/bin"* ]]; then
+        echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
+        export PATH="$HOME/.local/bin:$PATH"
+        
+        echo "Added ~/.local/bin to PATH for pip installations"
+      fi
+    fi
+  else
+    echo "Neither pip nor pip3 found. Please install Python and pip first."
+  fi
+}
+
 # Install hub
 install_hub
 
@@ -285,5 +356,8 @@ install_direnv
 
 # Install Rust and Cargo
 install_cargo
+
+# Install git-machete
+install_git_machete
 
 echo "Installation complete!"
