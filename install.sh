@@ -136,6 +136,56 @@ install_uv_uvx() {
   fi
 }
 
+# Install direnv if not already installed
+install_direnv() {
+  if ! command_exists direnv; then
+    echo "Installing direnv..."
+    
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      # macOS - use Homebrew if available
+      if command_exists brew; then
+        brew install direnv
+      else
+        echo "Homebrew not found. Please install Homebrew first or install direnv manually."
+      fi
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+      # Linux - try using apt or your preferred package manager
+      if command_exists apt-get; then
+        sudo apt-get update
+        sudo apt-get install -y direnv
+      elif command_exists yum; then
+        sudo yum install -y direnv
+      else
+        # Fall back to direct download and installation
+        echo "Installing direnv from GitHub releases..."
+        DIRENV_VERSION=$(curl -s https://api.github.com/repos/direnv/direnv/releases/latest | grep 'tag_name' | cut -d\" -f4)
+        DIRENV_ARCH=$(uname -m)
+        DIRENV_OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        curl -sfLo direnv "https://github.com/direnv/direnv/releases/download/${DIRENV_VERSION}/direnv.${DIRENV_OS}-${DIRENV_ARCH}"
+        chmod +x direnv
+        sudo mv direnv /usr/local/bin/
+      fi
+    else
+      echo "Unsupported OS. Please install direnv manually from https://direnv.net/docs/installation.html"
+    fi
+    
+    # Configure shell integration if not already configured
+    if [[ -f "$HOME/.zshrc" ]]; then
+      if ! grep -q "direnv hook" "$HOME/.zshrc"; then
+        echo 'eval "$(direnv hook zsh)"' >> "$HOME/.zshrc"
+        echo "Added direnv hook to .zshrc"
+      fi
+    elif [[ -f "$HOME/.bashrc" ]]; then
+      if ! grep -q "direnv hook" "$HOME/.bashrc"; then
+        echo 'eval "$(direnv hook bash)"' >> "$HOME/.bashrc"
+        echo "Added direnv hook to .bashrc"
+      fi
+    fi
+  else
+    echo "direnv is already installed"
+  fi
+}
+
 # Install hub
 install_hub
 
@@ -167,5 +217,8 @@ install_claude_code
 
 # Install uv and uvx
 install_uv_uvx
+
+# Install direnv
+install_direnv
 
 echo "Installation complete!"
