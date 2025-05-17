@@ -109,7 +109,10 @@ function gpo () {
     git push origin $current_branch $1
 }
 
-ssh-add --apple-use-keychain
+# Add SSH keys to SSH agent with Apple keychain (macOS only)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  ssh-add --apple-use-keychain
+fi
 
 alias k=kubectl
 
