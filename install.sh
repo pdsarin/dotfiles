@@ -186,6 +186,59 @@ install_direnv() {
   fi
 }
 
+# Install Rust and Cargo if not already installed
+install_cargo() {
+  if ! command_exists cargo || ! command_exists rustc; then
+    echo "Installing Rust and Cargo..."
+    
+    # The official way to install Rust is through rustup
+    if ! command_exists rustup; then
+      echo "Installing rustup..."
+      
+      # Using the official rustup installer
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      
+      # Source cargo environment to make cargo available in current shell
+      source "$HOME/.cargo/env"
+      
+      echo "Rust and Cargo installed successfully"
+    else
+      # If rustup is installed but cargo/rustc aren't, update rustup
+      echo "Updating rustup..."
+      rustup update
+    fi
+    
+    # Add Cargo's bin directory to PATH in shell configs if not already added
+    CARGO_ENV_LINE='source "$HOME/.cargo/env"'
+    
+    if [[ -f "$HOME/.zshrc" ]]; then
+      if ! grep -q "$CARGO_ENV_LINE" "$HOME/.zshrc"; then
+        echo "" >> "$HOME/.zshrc"
+        echo "# Rust/Cargo environment" >> "$HOME/.zshrc"
+        echo "$CARGO_ENV_LINE" >> "$HOME/.zshrc"
+        echo "Added Cargo environment to .zshrc"
+      fi
+    fi
+    
+    if [[ -f "$HOME/.bashrc" ]]; then
+      if ! grep -q "$CARGO_ENV_LINE" "$HOME/.bashrc"; then
+        echo "" >> "$HOME/.bashrc"
+        echo "# Rust/Cargo environment" >> "$HOME/.bashrc"
+        echo "$CARGO_ENV_LINE" >> "$HOME/.bashrc"
+        echo "Added Cargo environment to .bashrc"
+      fi
+    fi
+  else
+    echo "Rust and Cargo are already installed"
+    
+    # Update if already installed
+    if command_exists rustup; then
+      echo "Checking for Rust updates..."
+      rustup update
+    fi
+  fi
+}
+
 # Install hub
 install_hub
 
@@ -220,5 +273,8 @@ install_uv_uvx
 
 # Install direnv
 install_direnv
+
+# Install Rust and Cargo
+install_cargo
 
 echo "Installation complete!"
