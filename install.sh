@@ -360,4 +360,14 @@ install_cargo
 # Install git-machete
 install_git_machete
 
+# Create ~/.claude directory and copy CLAUDE.md
+if [ -f "$(dirname "$0")/CLAUDE.md" ]; then
+  echo "Setting up Claude configuration..."
+  mkdir -p "$HOME/.claude"
+  cp "$(dirname "$0")/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+  echo "CLAUDE.md copied to ~/.claude/CLAUDE.md"
+else
+  echo "CLAUDE.md not found in dotfiles directory"
+fi
+
 echo "Installation complete!"
