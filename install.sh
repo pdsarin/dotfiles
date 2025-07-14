@@ -239,6 +239,49 @@ install_cargo() {
   fi
 }
 
+# Install GitHub CLI if not already installed
+install_gh() {
+  if ! command_exists gh; then
+    echo "Installing GitHub CLI (gh)..."
+    
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      # macOS - use Homebrew if available
+      if command_exists brew; then
+        brew install gh
+      else
+        echo "Homebrew not found. Please install Homebrew first or install gh manually."
+      fi
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+      # Linux - try using apt or your preferred package manager
+      if command_exists apt-get; then
+        sudo apt-get update
+        sudo apt-get install -y gh
+      elif command_exists yum; then
+        sudo yum install -y gh
+      elif command_exists snap; then
+        sudo snap install gh
+      else
+        # Fall back to direct download and installation
+        echo "Installing gh from GitHub releases..."
+        GH_VERSION=$(curl -s https://api.github.com/repos/cli/cli/releases/latest | grep 'tag_name' | cut -d\" -f4)
+        GH_ARCH=$(uname -m)
+        if [[ "$GH_ARCH" == "x86_64" ]]; then
+          GH_ARCH="amd64"
+        fi
+        GH_OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        curl -sfLo gh.tar.gz "https://github.com/cli/cli/releases/download/${GH_VERSION}/gh_${GH_VERSION#v}_${GH_OS}_${GH_ARCH}.tar.gz"
+        tar -xzf gh.tar.gz
+        sudo mv gh_*/bin/gh /usr/local/bin/
+        rm -rf gh.tar.gz gh_*
+      fi
+    else
+      echo "Unsupported OS. Please install gh manually."
+    fi
+  else
+    echo "GitHub CLI (gh) is already installed"
+  fi
+}
+
 # Install git-machete if not already installed
 install_git_machete() {
   if ! command_exists git-machete; then
@@ -356,6 +399,9 @@ install_direnv
 
 # Install Rust and Cargo
 install_cargo
+
+# Install GitHub CLI
+install_gh
 
 # Install git-machete
 install_git_machete
