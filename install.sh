@@ -406,14 +406,34 @@ install_gh
 # Install git-machete
 install_git_machete
 
-# Create ~/.claude directory and copy CLAUDE.md
-if [ -f "$(dirname "$0")/CLAUDE.md" ]; then
-  echo "Setting up Claude configuration..."
+# Create ~/.claude directory and copy global CLAUDE.md
+if [ -f "$(dirname "$0")/claude-global.md" ]; then
+  echo "Setting up Claude global configuration..."
   mkdir -p "$HOME/.claude"
-  cp "$(dirname "$0")/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-  echo "CLAUDE.md copied to ~/.claude/CLAUDE.md"
+  cp "$(dirname "$0")/claude-global.md" "$HOME/.claude/CLAUDE.md"
+  echo "Global CLAUDE.md copied to ~/.claude/CLAUDE.md"
 else
-  echo "CLAUDE.md not found in dotfiles directory"
+  echo "claude-global.md not found in dotfiles directory"
+fi
+
+# Install Claude settings.json
+if [ -f "$(dirname "$0")/claude-settings.json" ]; then
+  echo "Installing Claude settings..."
+  mkdir -p "$HOME/.claude"
+  cp "$(dirname "$0")/claude-settings.json" "$HOME/.claude/settings.json"
+  echo "Claude settings.json installed to ~/.claude/settings.json"
+else
+  echo "claude-settings.json not found in dotfiles directory"
+fi
+
+# Install you-are-not-right.sh hook script
+if [ -f "$(dirname "$0")/you-are-not-right.sh" ]; then
+  echo "Installing you-are-not-right.sh hook..."
+  cp "$(dirname "$0")/you-are-not-right.sh" "$HOME/you-are-not-right.sh"
+  chmod +x "$HOME/you-are-not-right.sh"
+  echo "you-are-not-right.sh installed to ~/you-are-not-right.sh (executable)"
+else
+  echo "you-are-not-right.sh not found in dotfiles directory"
 fi
 
 echo "Installation complete!"
