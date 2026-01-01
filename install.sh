@@ -426,14 +426,4 @@ else
   echo "claude-settings.json not found in dotfiles directory"
 fi
 
-# Install you-are-not-right.sh hook script
-if [ -f "$(dirname "$0")/you-are-not-right.sh" ]; then
-  echo "Installing you-are-not-right.sh hook..."
-  cp "$(dirname "$0")/you-are-not-right.sh" "$HOME/you-are-not-right.sh"
-  chmod +x "$HOME/you-are-not-right.sh"
-  echo "you-are-not-right.sh installed to ~/you-are-not-right.sh (executable)"
-else
-  echo "you-are-not-right.sh not found in dotfiles directory"
-fi
-
 echo "Installation complete!"
