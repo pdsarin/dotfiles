@@ -426,4 +426,18 @@ else
   echo "claude-settings.json not found in dotfiles directory"
 fi
 
+# Install Claude slash commands
+if [ -d "$(dirname "$0")/commands" ]; then
+  echo "Installing Claude slash commands..."
+  mkdir -p "$HOME/.claude/commands"
+  cp "$(dirname "$0")/commands/"*.md "$HOME/.claude/commands/" 2>/dev/null
+  if [ $? -eq 0 ]; then
+    echo "Claude slash commands installed to ~/.claude/commands/"
+  else
+    echo "No command files found in dotfiles/commands directory"
+  fi
+else
+  echo "commands directory not found in dotfiles directory"
+fi
+
 echo "Installation complete!"
