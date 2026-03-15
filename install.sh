@@ -6,37 +6,6 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
-# Install hub tool if not already installed
-install_hub() {
-  if ! command_exists hub; then
-    echo "Installing hub..."
-    
-    # Check the OS and install appropriately
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      # macOS - use Homebrew if available
-      if command_exists brew; then
-        brew install hub
-      else
-        echo "Homebrew not found. Please install Homebrew first or install hub manually."
-      fi
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-      # Linux - try using apt or your preferred package manager
-      if command_exists apt-get; then
-        sudo apt-get update
-        sudo apt-get install -y hub
-      elif command_exists yum; then
-        sudo yum install -y hub
-      else
-        echo "Could not detect package manager. Please install hub manually."
-      fi
-    else
-      echo "Unsupported OS. Please install hub manually."
-    fi
-  else
-    echo "hub is already installed"
-  fi
-}
-
 # Check if Node.js is installed and version is 18+
 check_nodejs() {
   if command_exists node; then
@@ -353,9 +322,6 @@ install_git_machete_with_pip() {
   fi
 }
 
-# Install hub
-install_hub
-
 # Install oh-my-zsh if not already installed
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
   echo "Installing oh-my-zsh..."
@@ -406,14 +372,28 @@ install_gh
 # Install git-machete
 install_git_machete
 
-# Create ~/.claude directory and copy CLAUDE.md
-if [ -f "$(dirname "$0")/CLAUDE.md" ]; then
-  echo "Setting up Claude configuration..."
-  mkdir -p "$HOME/.claude"
-  cp "$(dirname "$0")/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-  echo "CLAUDE.md copied to ~/.claude/CLAUDE.md"
-else
-  echo "CLAUDE.md not found in dotfiles directory"
-fi
+# Install Codex CLI
+install_codex() {
+  if ! command_exists codex; then
+    echo "Installing Codex CLI..."
+
+    if command_exists npm; then
+      npm install -g @openai/codex
+      echo "Codex CLI installed successfully"
+    else
+      echo "npm not found. Please install Node.js first."
+    fi
+  else
+    echo "Codex CLI is already installed"
+  fi
+}
+install_codex
+
+# Copy CLAUDE.md to ~/.claude and ~/.codex
+DOTFILES_DIR="$(dirname "$0")"
+mkdir -p "$HOME/.claude" "$HOME/.codex"
+cp "$DOTFILES_DIR/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+cp "$DOTFILES_DIR/CLAUDE.md" "$HOME/.codex/AGENTS.md"
+echo "CLAUDE.md copied to ~/.claude/CLAUDE.md and ~/.codex/AGENTS.md"
 
 echo "Installation complete!"
