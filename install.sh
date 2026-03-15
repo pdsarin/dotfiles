@@ -64,13 +64,8 @@ install_nodejs() {
 install_claude_code() {
   if ! command_exists claude; then
     echo "Installing Claude Code CLI..."
-    
-    if command_exists npm; then
-      npm install -g @anthropic-ai/claude-code
-      echo "Claude Code installed successfully"
-    else
-      echo "npm not found. Please install Node.js first."
-    fi
+    curl -fsSL https://claude.ai/install.sh | bash
+    echo "Claude Code installed successfully"
   else
     echo "Claude Code is already installed"
   fi
