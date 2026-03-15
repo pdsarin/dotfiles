@@ -354,6 +354,26 @@ fi
 # Install Node.js 18+ if needed
 install_nodejs
 
+# Ensure npm is available (should come with Node.js, install separately if missing)
+if ! command_exists npm; then
+  echo "npm not found. Installing npm..."
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    if command_exists brew; then
+      brew install npm
+    else
+      echo "Homebrew not found. Please install npm manually."
+    fi
+  elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if command_exists apt-get; then
+      sudo apt-get update && sudo apt-get install -y npm
+    elif command_exists yum; then
+      sudo yum install -y npm
+    else
+      echo "Could not install npm. Please install it manually."
+    fi
+  fi
+fi
+
 # Install Claude Code
 install_claude_code
 
