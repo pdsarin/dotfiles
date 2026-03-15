@@ -94,8 +94,6 @@ export EDITOR='vim'
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-alias git=hub
-
 alias gco="git checkout"
 alias gpr="git pull-request"
 
