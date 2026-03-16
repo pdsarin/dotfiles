@@ -44,7 +44,7 @@ install_nodejs() {
       # Linux - use nvm for easier version management
       if ! command_exists nvm; then
         echo "Installing nvm..."
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
         
         # Load nvm
         export NVM_DIR="$HOME/.nvm"
