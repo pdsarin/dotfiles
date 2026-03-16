@@ -112,4 +112,3 @@ alias k=kubectl
 
 eval "$(direnv hook zsh)"
 
-. "$HOME/.cargo/env"
