@@ -85,19 +85,6 @@ install_uv_uvx() {
   else
     echo "uv is already installed"
   fi
-  
-  # Install uvx if not already installed
-  if ! command_exists uvx; then
-    echo "Installing uvx..."
-    
-    if command_exists uv; then
-      uv install uvx
-    else
-      echo "uv not found. Cannot install uvx."
-    fi
-  else
-    echo "uvx is already installed"
-  fi
 }
 
 # Install direnv if not already installed
@@ -133,20 +120,21 @@ install_direnv() {
       echo "Unsupported OS. Please install direnv manually from https://direnv.net/docs/installation.html"
     fi
     
-    # Configure shell integration if not already configured
-    if [[ -f "$HOME/.zshrc" ]]; then
-      if ! grep -q "direnv hook" "$HOME/.zshrc"; then
-        echo 'eval "$(direnv hook zsh)"' >> "$HOME/.zshrc"
-        echo "Added direnv hook to .zshrc"
-      fi
-    elif [[ -f "$HOME/.bashrc" ]]; then
-      if ! grep -q "direnv hook" "$HOME/.bashrc"; then
-        echo 'eval "$(direnv hook bash)"' >> "$HOME/.bashrc"
-        echo "Added direnv hook to .bashrc"
-      fi
-    fi
   else
     echo "direnv is already installed"
+  fi
+
+  # Configure shell integration if not already configured
+  if [[ -f "$HOME/.zshrc" ]]; then
+    if ! grep -q "direnv hook" "$HOME/.zshrc"; then
+      echo 'eval "$(direnv hook zsh)"' >> "$HOME/.zshrc"
+      echo "Added direnv hook to .zshrc"
+    fi
+  elif [[ -f "$HOME/.bashrc" ]]; then
+    if ! grep -q "direnv hook" "$HOME/.bashrc"; then
+      echo 'eval "$(direnv hook bash)"' >> "$HOME/.bashrc"
+      echo "Added direnv hook to .bashrc"
+    fi
   fi
 }
 
@@ -172,33 +160,34 @@ install_cargo() {
       rustup update
     fi
     
-    # Add Cargo's bin directory to PATH in shell configs if not already added
-    CARGO_ENV_LINE='source "$HOME/.cargo/env"'
-    
-    if [[ -f "$HOME/.zshrc" ]]; then
-      if ! grep -q "$CARGO_ENV_LINE" "$HOME/.zshrc"; then
-        echo "" >> "$HOME/.zshrc"
-        echo "# Rust/Cargo environment" >> "$HOME/.zshrc"
-        echo "$CARGO_ENV_LINE" >> "$HOME/.zshrc"
-        echo "Added Cargo environment to .zshrc"
-      fi
-    fi
-    
-    if [[ -f "$HOME/.bashrc" ]]; then
-      if ! grep -q "$CARGO_ENV_LINE" "$HOME/.bashrc"; then
-        echo "" >> "$HOME/.bashrc"
-        echo "# Rust/Cargo environment" >> "$HOME/.bashrc"
-        echo "$CARGO_ENV_LINE" >> "$HOME/.bashrc"
-        echo "Added Cargo environment to .bashrc"
-      fi
-    fi
   else
     echo "Rust and Cargo are already installed"
-    
+
     # Update if already installed
     if command_exists rustup; then
       echo "Checking for Rust updates..."
       rustup update
+    fi
+  fi
+
+  # Add Cargo's bin directory to PATH in shell configs if not already added
+  CARGO_ENV_LINE='source "$HOME/.cargo/env"'
+
+  if [[ -f "$HOME/.zshrc" ]]; then
+    if ! grep -q "$CARGO_ENV_LINE" "$HOME/.zshrc"; then
+      echo "" >> "$HOME/.zshrc"
+      echo "# Rust/Cargo environment" >> "$HOME/.zshrc"
+      echo "$CARGO_ENV_LINE" >> "$HOME/.zshrc"
+      echo "Added Cargo environment to .zshrc"
+    fi
+  fi
+
+  if [[ -f "$HOME/.bashrc" ]]; then
+    if ! grep -q "$CARGO_ENV_LINE" "$HOME/.bashrc"; then
+      echo "" >> "$HOME/.bashrc"
+      echo "# Rust/Cargo environment" >> "$HOME/.bashrc"
+      echo "$CARGO_ENV_LINE" >> "$HOME/.bashrc"
+      echo "Added Cargo environment to .bashrc"
     fi
   fi
 }
