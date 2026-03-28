@@ -95,7 +95,7 @@ export EDITOR='vim'
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 alias gco="git checkout"
-alias gpr="git pull-request"
+alias gpr="gh pr create"
 
 
 function gpo () {
