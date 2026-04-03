@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\033]777;notify;Claude Code;Needs your attention\\007'"
+          }
+        ]
+      }
+    ]
+  }
+}

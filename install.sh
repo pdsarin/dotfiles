@@ -393,11 +393,37 @@ install_codex() {
 }
 install_codex
 
-# Copy CLAUDE.md to ~/.claude and ~/.codex
+# Copy config files
 DOTFILES_DIR="$(dirname "$0")"
+
+# Copy CLAUDE.md to ~/.claude and ~/.codex
 mkdir -p "$HOME/.claude" "$HOME/.codex"
 cp "$DOTFILES_DIR/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 cp "$DOTFILES_DIR/CLAUDE.md" "$HOME/.codex/AGENTS.md"
 echo "CLAUDE.md copied to ~/.claude/CLAUDE.md and ~/.codex/AGENTS.md"
+
+# Install Ghostty config
+mkdir -p "$HOME/.config/ghostty"
+cp "$DOTFILES_DIR/ghostty-config" "$HOME/.config/ghostty/config"
+echo "Ghostty config installed"
+
+# Install tmux config
+cp "$DOTFILES_DIR/tmux.conf" "$HOME/.tmux.conf"
+echo "tmux.conf installed"
+
+# Merge Claude Code notification hook into settings.json
+if [ -f "$HOME/.claude/settings.json" ]; then
+  if command_exists jq; then
+    # Merge hooks from dotfiles into existing settings
+    jq -s '.[0] * .[1]' "$HOME/.claude/settings.json" "$DOTFILES_DIR/claude-settings.json" > "$HOME/.claude/settings.json.tmp" \
+      && mv "$HOME/.claude/settings.json.tmp" "$HOME/.claude/settings.json"
+    echo "Claude Code notification hook merged into settings.json"
+  else
+    echo "jq not found — skipping Claude Code settings merge. Install jq to enable this."
+  fi
+else
+  cp "$DOTFILES_DIR/claude-settings.json" "$HOME/.claude/settings.json"
+  echo "Claude Code settings.json installed"
+fi
 
 echo "Installation complete!"
