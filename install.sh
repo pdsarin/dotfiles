@@ -393,6 +393,18 @@ install_codex() {
 }
 install_codex
 
+# Install Beads
+install_beads() {
+  if ! command_exists bd; then
+    echo "Installing Beads..."
+    curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
+    echo "Beads installed successfully"
+  else
+    echo "Beads is already installed"
+  fi
+}
+install_beads
+
 # Copy config files
 DOTFILES_DIR="$(dirname "$0")"
 
