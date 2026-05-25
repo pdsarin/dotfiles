@@ -393,6 +393,67 @@ install_codex() {
 }
 install_codex
 
+# Install commit-headless for headless signed commits in Datadog workspaces.
+# See: https://datadoghq.atlassian.net/wiki/spaces/DEVX/pages/6336283013
+# The v3.3+ binary at ~/.local/bin takes precedence over the v2.0.1 binary
+# pre-installed at /usr/local/bin/commit-headless in Datadog workspaces.
+install_commit_headless() {
+  local target="$HOME/.local/bin/commit-headless"
+  local required="3.3.0"
+
+  has_min_commit_headless_version() {
+    local bin=$1 cur
+    [ -x "$bin" ] || return 1
+    cur=$("$bin" version 2>/dev/null | awk '/^commit-headless version/ {print $3}')
+    [ -n "$cur" ] || return 1
+    [ "$(printf '%s\n%s\n' "$cur" "$required" | sort -V | head -1)" = "$required" ]
+  }
+
+  if has_min_commit_headless_version "$target"; then
+    echo "commit-headless >=${required} is already installed at $target"
+    return 0
+  fi
+
+  echo "Installing commit-headless v${required}..."
+  mkdir -p "$HOME/.local/bin"
+
+  local arch
+  arch="$(uname -m)"
+  case "$arch" in
+    x86_64) arch=amd64 ;;
+    aarch64|arm64) arch=arm64 ;;
+    *) echo "commit-headless: unsupported arch: $arch" >&2; return 1 ;;
+  esac
+
+  local os
+  case "$OSTYPE" in
+    linux*)  os=linux ;;
+    darwin*) os=darwin ;;
+    *) echo "commit-headless: unsupported OS: $OSTYPE" >&2; return 1 ;;
+  esac
+
+  local tmp
+  tmp="$(mktemp)"
+  if ! curl -fsSL -o "$tmp" \
+      "https://github.com/DataDog/commit-headless/raw/action/v${required}/dist/commit-headless-${os}-${arch}"; then
+    echo "commit-headless: download failed" >&2
+    rm -f "$tmp"
+    return 1
+  fi
+  chmod +x "$tmp"
+
+  if ! has_min_commit_headless_version "$tmp"; then
+    echo "commit-headless: downloaded binary does not report >= ${required}" >&2
+    rm -f "$tmp"
+    return 1
+  fi
+
+  mv "$tmp" "$target"
+  echo "commit-headless installed at $target"
+  "$target" version
+}
+install_commit_headless
+
 # Copy config files
 DOTFILES_DIR="$(dirname "$0")"
 
