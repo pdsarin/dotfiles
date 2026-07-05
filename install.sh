@@ -426,6 +426,18 @@ install_commit_headless() {
     return 0
   fi
 
+  local os
+  case "$OSTYPE" in
+    linux*) os=linux ;;
+    darwin*)
+      # Only linux-amd64/linux-arm64 binaries are published (it's built for
+      # Linux-based Datadog workspace containers); nothing to install here.
+      echo "commit-headless: no macOS build is published; skipping (only needed inside Linux Datadog workspaces)"
+      return 0
+      ;;
+    *) echo "commit-headless: unsupported OS: $OSTYPE" >&2; return 1 ;;
+  esac
+
   echo "Installing commit-headless v${required}..."
   mkdir -p "$HOME/.local/bin"
 
@@ -435,13 +447,6 @@ install_commit_headless() {
     x86_64) arch=amd64 ;;
     aarch64|arm64) arch=arm64 ;;
     *) echo "commit-headless: unsupported arch: $arch" >&2; return 1 ;;
-  esac
-
-  local os
-  case "$OSTYPE" in
-    linux*)  os=linux ;;
-    darwin*) os=darwin ;;
-    *) echo "commit-headless: unsupported OS: $OSTYPE" >&2; return 1 ;;
   esac
 
   local tmp
@@ -464,7 +469,7 @@ install_commit_headless() {
   echo "commit-headless installed at $target"
   "$target" version
 }
-install_commit_headless
+install_commit_headless || echo "commit-headless: installation failed, continuing"
 
 # Copy config files
 DOTFILES_DIR="$(dirname "$0")"
